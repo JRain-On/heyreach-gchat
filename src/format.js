@@ -53,6 +53,7 @@ function extractMessage(body) {
     "lastMessage",
     "text",
     "conversation.lastMessage",
+    "recent_messages",
   );
   if (typeof raw === "string") return raw;
   if (Array.isArray(raw)) {
@@ -79,20 +80,22 @@ export function normalize(body) {
   const name = joinName(lead);
 
   return {
-    eventType: pick(body, "eventType", "event", "type", "webhookEventType") ?? "UNKNOWN",
+    eventType: String(
+      pick(body, "eventType", "event_type", "event", "type", "webhookEventType") ?? "UNKNOWN",
+    ).toUpperCase(),
     lead: {
       name,
       profileUrl: pick(lead, "profileUrl", "profile_url", "linkedinUrl", "linkedin_profile_url"),
       company: pick(lead, "companyName", "company_name", "company", "currentCompany"),
       position: pick(lead, "position", "title", "headline", "occupation"),
-      email: pick(lead, "emailAddress", "email"),
+      email: pick(lead, "emailAddress", "email", "email_address"),
       avatar: pick(lead, "profilePictureUrl", "imageUrl", "avatarUrl"),
     },
     campaign: pick(body, "campaign.name", "campaignName", "campaign.id", "campaignId"),
     sender: joinName(body.sender ?? body.linkedInAccount ?? {}) ?? pick(body, "senderName"),
     message: extractMessage(body),
     tags: pick(body, "tags", "leadTags", "tag"),
-    conversationId: pick(body, "conversationId", "conversation.id", "chatroomId"),
+    conversationId: pick(body, "conversationId", "conversation.id", "chatroomId", "conversation_id"),
     time: pick(body, "time", "timestamp", "createdAt", "eventTime"),
   };
 }
